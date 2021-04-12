@@ -1,0 +1,11 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/.",
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/bela-toolchain.cmake",
+        "BELA": "on",
+        "CMAKE_CROSSCOMPILING": true
+    },
+    "files.associations": {
+        "cmath": "cpp"
+    },
+}
