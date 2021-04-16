@@ -10,6 +10,7 @@ class Wavetable {
         void setFrequency(float f);
         float getFrequency();
         float process();
+        float getSample();
         ~Wavetable() {}
 
     private:
@@ -19,4 +20,5 @@ class Wavetable {
         float readPointer_;
         float useInterpolation_;
         float interpolate_();
+        float sample_;
 };

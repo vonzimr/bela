@@ -21,51 +21,74 @@ The Bela software is distributed under the GNU Lesser General Public License
 (LGPL 3.0), available here: https://www.gnu.org/licenses/lgpl-3.0.txt
 */
 
-#include "wavetable.h"
 #include <Bela.h>
 #include <cmath>
 #include <Scope/Scope.h>
 #include <Utilities.h>
+#include <stdlib.h>
+#include "wavetable.h"
+#include "wavetablegroup.h"
 
-Wavetable gOscillator;
+
+WaveTableGroup gWave;
 Scope gScope;
 
 const unsigned int kWaveTableSize = 512;
 
 bool setup(BelaContext *context, void *userData) {
-  std::vector<float> wavetable;
-  wavetable.resize(kWaveTableSize);
-  gOscillator = Wavetable();
+  std::vector<float> sineTable;
+  sineTable.resize(kWaveTableSize);
 
-  for (unsigned int n = 0; n < wavetable.size(); n++) {
-    wavetable[n] = sinf(2.0 * M_PI * (float)n / (float)wavetable.size());
+  std::vector<float> sawTable;
+  sawTable.resize(kWaveTableSize);
+
+  Wavetable sine = Wavetable();
+  Wavetable saw = Wavetable();
+
+  for (unsigned int n = 0; n < sineTable.size(); n++) {
+    sineTable[n] = sinf(2.0 * M_PI * (float)n / (float)sineTable.size());
   }
 
-  gOscillator.setup(context->audioSampleRate, wavetable);
-  gOscillator.setFrequency(440.0);
+  for (unsigned int n = 0; n < sawTable.size(); n++) {
+    sawTable[n] = (float)n / (float)sawTable.size();
+  }
+
+  sine.setup(context->audioSampleRate, sineTable);
+  saw.setup(context->audioSampleRate, sawTable);
+
+  gWave.addWaveTable(sine);
+  gWave.addWaveTable(saw);
+  gWave.setFrequency(440.0);
   gScope.setup(2, context->audioSampleRate);
+
+  printf("I've been initialized\n");
 
   return true;
 }
 
 float cvToFreq(float in) {
-    gScope.log(in);
-    return 55.0*powf(2.0, in * 10);
-
+    // TODO: Sample voltages across rangesr
+    float volts = in * 10.0;
+    float hz = 73.42*powf(2.0, volts - 0.152);
+    return hz;
 
 }
 
 void render(BelaContext *context, void *userData) {
   for (unsigned int n = 0; n < context->audioFrames; n++) {
-    float out = gOscillator.process();
     float input = analogRead(context, 0, 1);
     float freq = cvToFreq(input);
-    gOscillator.setFrequency(freq);
+
+    gWave.setFrequency(freq);
+
+    float out = gWave.process();
 
     for (unsigned int channel = 0; channel < context->audioOutChannels;
          channel++) {
       audioWrite(context, n, channel, out);
     }
+
+    gScope.log(out);
   }
 }
 

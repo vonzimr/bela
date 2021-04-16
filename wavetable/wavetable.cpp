@@ -1,7 +1,10 @@
 #include <cmath>
 #include "wavetable.h"
+#include "interpolation.h"
+#include <stdio.h>
 
 Wavetable::Wavetable(float sampleRate, std::vector<float>& table, bool useInterpolation) {
+
     setup(sampleRate, table, useInterpolation);
 }
 
@@ -23,10 +26,16 @@ float Wavetable::getFrequency() {
 float Wavetable::interpolate_() {
     int indexBelow = floorf(readPointer_);
     int indexAbove =  (indexBelow + 1) % table_.size();
-    float fractionAbove = readPointer_ - indexBelow;
-    float fractionBelow = 1.0 - fractionAbove;
 
-    return fractionBelow * table_[indexBelow] + fractionAbove * table_[indexAbove];
+   return Interpolation::linear(
+               table_[indexBelow],
+               table_[indexAbove],
+               readPointer_);
+
+}
+
+float Wavetable::getSample(){
+    return sample_;
 }
 
 float Wavetable::process() {
@@ -40,6 +49,8 @@ float Wavetable::process() {
         readPointer_ -= table_.size();
     }
 
-    return useInterpolation_ ? interpolate_() : table_[(int)readPointer_];
+    float sample_  = useInterpolation_ ? interpolate_() : table_[(int)readPointer_];
+
+    return sample_;
 }
 

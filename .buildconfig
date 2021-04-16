@@ -1,0 +1,11 @@
+[default]
+name=Default
+runtime=sysroot:Sysroot 0
+toolchain=cmake:/home/robert/projects/Salt/bela-toolchain.cmake
+config-opts=
+run-opts=
+prefix=/home/robert/.cache/gnome-builder/install/Salt/sysroot:Sysroot 0
+app-id=
+postbuild=
+prebuild=
+default=true
