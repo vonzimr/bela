@@ -4,4 +4,5 @@ add_executable(wavetable
     wavetable.cpp
     wavetablegroup.cpp
     interpolation.cpp
+    functiongenerators.cpp
 )
