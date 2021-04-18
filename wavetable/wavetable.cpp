@@ -49,7 +49,7 @@ float Wavetable::process() {
         readPointer_ -= table_.size();
     }
 
-    float sample_  = useInterpolation_ ? interpolate_() : table_[(int)readPointer_];
+    sample_  = useInterpolation_ ? interpolate_() : table_[(int)readPointer_];
 
     return sample_;
 }
