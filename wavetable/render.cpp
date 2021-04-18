@@ -28,42 +28,31 @@ The Bela software is distributed under the GNU Lesser General Public License
 #include <stdlib.h>
 #include "wavetable.h"
 #include "wavetablegroup.h"
+#include <algorithm>
+#include "functiongenerators.h"
 
-
-WaveTableGroup gWave;
 Scope gScope;
-
-const unsigned int kWaveTableSize = 512;
+WaveTableGroup gWave;
 
 bool setup(BelaContext *context, void *userData) {
-  std::vector<float> sineTable;
-  sineTable.resize(kWaveTableSize);
+    unsigned int waveTableSize = 512;
 
-  std::vector<float> sawTable;
-  sawTable.resize(kWaveTableSize);
+    gWave.setup(waveTableSize, context->audioSampleRate);
 
-  Wavetable sine = Wavetable();
-  Wavetable saw = Wavetable();
+    FunctionGenerators funcs = FunctionGenerators(waveTableSize);
 
-  for (unsigned int n = 0; n < sineTable.size(); n++) {
-    sineTable[n] = sinf(2.0 * M_PI * (float)n / (float)sineTable.size());
-  }
+    std::vector<std::vector<float>> sampleData {
+        funcs.generate(Functions::Saw),
+                funcs.generate(Functions::Sine),
+                funcs.generate(Functions::Triangle),
+                funcs.generate(Functions::Pulse)
+    };
 
-  for (unsigned int n = 0; n < sawTable.size(); n++) {
-    sawTable[n] = (float)n / (float)sawTable.size();
-  }
+    gWave.addWaveTables(sampleData);
 
-  sine.setup(context->audioSampleRate, sineTable);
-  saw.setup(context->audioSampleRate, sawTable);
+    gScope.setup(2, context->audioSampleRate);
 
-  gWave.addWaveTable(sine);
-  gWave.addWaveTable(saw);
-  gWave.setFrequency(440.0);
-  gScope.setup(2, context->audioSampleRate);
-
-  printf("I've been initialized\n");
-
-  return true;
+    return true;
 }
 
 float cvToFreq(float in) {
@@ -77,9 +66,11 @@ float cvToFreq(float in) {
 void render(BelaContext *context, void *userData) {
   for (unsigned int n = 0; n < context->audioFrames; n++) {
     float input = analogRead(context, 0, 1);
+    float transform = analogRead(context, 0, 2);
     float freq = cvToFreq(input);
 
     gWave.setFrequency(freq);
+    gWave.setPosition(transform, 0, 1);
 
     float out = gWave.process();
 

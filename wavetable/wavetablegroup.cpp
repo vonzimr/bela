@@ -3,33 +3,47 @@
 #include <math.h>
 #include <assert.h>
 #include "interpolation.h"
+#include "Utilities.h"
 
-void WaveTableGroup::addWaveTable(Wavetable wavetable)
-{
-     wavetables_.push_back(wavetable);
-};
 
-void WaveTableGroup::setPosition(float position){
-    assert(position < wavetables_.size());
-    position_ = position;
+typedef std::vector<std::vector<float>> TableData;
+
+
+void WaveTableGroup::setPosition(float position, float minPosition, float maxPosition){
+    position_ = map(position, minPosition, maxPosition, 0, wavetables_.size()-1);
 }
 
 void WaveTableGroup::setFrequency(float frequency){
-    for(auto table : wavetables_){
+    for(auto& table : wavetables_){
         table.setFrequency(frequency);
     }
 }
 
+void WaveTableGroup::addWaveTable(Page& page) {
+    Wavetable wavetable = Wavetable();
+    wavetable.setup(sampleRate_, page);
+    wavetables_.push_back(wavetable);
+}
+
+void WaveTableGroup::addWaveTables(PageGroup &pages) {
+    for(auto &page: pages){
+        addWaveTable(page);
+    }
+}
+
+
 float WaveTableGroup::process() {
-    for(auto table : wavetables_){
+    for(auto& table : wavetables_){
         table.process();
     }
 
-    float firstTable = wavetables_[(int)position_].getSample();
-    float secondTable = wavetables_[(int)position_ + 1].getSample();
+    int firstTableIndex = (int) position_;
+    int secondTableIndex = (int) position_ + 1 % wavetables_.size();
+    float firstTable = wavetables_[firstTableIndex].getSample();
+    float secondTable = wavetables_[secondTableIndex].getSample();
 
 
-    float result =  Interpolation::linear(firstTable, secondTable, position_ - firstTable);
+    float result =  Interpolation::linear(firstTable, secondTable, position_ - firstTableIndex);
     return result;
 
 }
