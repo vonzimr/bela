@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(Salt VERSION 0.1.0)
 
+set(CMAKE_CXX_STANDARD 17)
+
 include(CTest)
 enable_testing()
 
@@ -45,8 +47,8 @@ find_library(
     )
 
 find_library(
-    LIB_BELA_EXTRA
-    NAMES belaextra
+    LIB_BELA_FULL
+    NAMES belafull
     PATHS ${BELA_SYSROOT}/root/Bela/lib
     )
 
@@ -73,11 +75,13 @@ else ()
     message(STATUS "libbela: ${LIB_BELA}")
 endif()
 
-if (${LIB_BELA_EXTRA})
-    message(FATAL_ERROR "libbelaextra not found")
+if (${LIB_BELA_FULL})
+    message(FATAL_ERROR "libbelafull not found")
 else ()
-    message(STATUS "libbelaextra: ${LIB_BELA_EXTRA}")
+    message(STATUS "libbelafull: ${LIB_BELA_FULL}")
 endif()
+
+message(STATUS "using c++ version: ${CXX_STANDARD} ")
 
 link_libraries(${LIB_MATH_NEON} ${LIB_NE10} ${LIB_BELA} ${LIB_BELA_EXTRA})
 
@@ -87,6 +91,7 @@ include_directories(
     ${CMAKE_SYSROOT}/usr/include/c++/6.3.0
     ${CMAKE_SYSROOT}/usr/include/c++/6.3.0/cmath
     ${CMAKE_SYSROOT}/usr/include/arm-linux-gnueabihf/c++/6.3.0
+    ./Bela
     ./Bela/libraries
     ./Bela/include
     ./Bela/include/legacy
@@ -109,10 +114,13 @@ link_directories(
 link_libraries(
     cobalt modechk pthread rt
     prussdrv asound seasocks NE10 mathneon dl
-    pd atomic
+    sndfile pd atomic
+    ${LIB_BELA}
+    ${LIB_BELA_FULL}
 )
 
-
+add_subdirectory(filters)
 add_subdirectory(wavetable)
+add_subdirectory(sample-player-filter)
 
-install(TARGETS wavetable)
+
