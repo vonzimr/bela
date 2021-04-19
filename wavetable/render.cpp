@@ -25,19 +25,20 @@ The Bela software is distributed under the GNU Lesser General Public License
 #include <cmath>
 #include <Scope/Scope.h>
 #include <Utilities.h>
-#include <stdlib.h>
 #include "wavetable.h"
 #include "wavetablegroup.h"
-#include <algorithm>
 #include "functiongenerators.h"
+#include "clock.h"
 
 Scope gScope;
 WaveTableGroup gWave;
+Clock gClock;
 
 bool setup(BelaContext *context, void *userData) {
     unsigned int waveTableSize = 512;
 
     gWave.setup(waveTableSize, context->audioSampleRate);
+    gClock.setup(context->audioSampleRate);
 
     FunctionGenerators funcs = FunctionGenerators(waveTableSize);
 
@@ -51,6 +52,8 @@ bool setup(BelaContext *context, void *userData) {
     gWave.addWaveTables(sampleData);
 
     gScope.setup(2, context->audioSampleRate);
+    auto helloFunc = [](){printf("hello\n");};
+    gClock.tickOnInterval(helloFunc, 1);
 
     return true;
 }
@@ -68,7 +71,6 @@ void render(BelaContext *context, void *userData) {
     float input = analogRead(context, 0, 1);
     float transform = analogRead(context, 0, 2);
     float freq = cvToFreq(input);
-
     gWave.setFrequency(freq);
     gWave.setPosition(transform, 0, 1);
 
@@ -80,6 +82,7 @@ void render(BelaContext *context, void *userData) {
     }
 
     gScope.log(out);
+    gClock.tick();
   }
 }
 

@@ -120,6 +120,7 @@ link_libraries(
 )
 
 add_subdirectory(filters)
+add_subdirectory(clock)
 add_subdirectory(wavetable)
 add_subdirectory(sample-player-filter)
 

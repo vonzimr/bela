@@ -7,4 +7,6 @@ add_executable(wavetable
     functiongenerators.cpp
 )
 
+target_link_libraries (wavetable LINK_PUBLIC clock)
+
 install(TARGETS wavetable DESTINATION)

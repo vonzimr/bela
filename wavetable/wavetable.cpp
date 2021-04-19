@@ -1,7 +1,6 @@
 #include <cmath>
 #include "wavetable.h"
 #include "interpolation.h"
-#include <stdio.h>
 
 Wavetable::Wavetable(float sampleRate, std::vector<float>& table, bool useInterpolation) {
 
