@@ -56,7 +56,7 @@ bool setup(BelaContext *context, void *userData) {
 }
 
 float cvToFreq(float in) {
-    // TODO: Sample voltages across rangesr
+    // TODO: Sample voltages across ranges
     float volts = in * 10.0;
     float hz = 73.42*powf(2.0, volts - 0.152);
     return hz;
