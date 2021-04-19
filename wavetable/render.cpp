@@ -54,7 +54,7 @@ bool setup(BelaContext *context, void *userData) {
     gScope.setup(2, context->audioSampleRate);
 
     auto helloFunc = [](){gWave.setFrequency(map((float)rand(), 0, (float)RAND_MAX, 440, 880));};
-    gClock.triggerOnInterval(helloFunc, 1);
+    gClock.triggerOnInterval(helloFunc, .1);
 
     gClock.triggerOnTimeout([]() {
         printf("hello!\n");

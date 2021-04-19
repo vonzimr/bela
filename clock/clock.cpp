@@ -37,7 +37,7 @@ void Clock::cleanup_() {
 }
 
 float Clock::timeInTicks(float seconds) {
-    return sampleRate_ / seconds;
+    return sampleRate_ * seconds;
 }
 
 
