@@ -6,3 +6,5 @@ add_executable(wavetable
     interpolation.cpp
     functiongenerators.cpp
 )
+
+install(TARGETS wavetable DESTINATION)
