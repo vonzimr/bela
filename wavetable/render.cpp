@@ -52,8 +52,13 @@ bool setup(BelaContext *context, void *userData) {
     gWave.addWaveTables(sampleData);
 
     gScope.setup(2, context->audioSampleRate);
-    auto helloFunc = [](){printf("hello\n");};
-    gClock.tickOnInterval(helloFunc, 1);
+
+    auto helloFunc = [](){gWave.setFrequency(map((float)rand(), 0, (float)RAND_MAX, 440, 880));};
+    gClock.triggerOnInterval(helloFunc, 1);
+
+    gClock.triggerOnTimeout([]() {
+        printf("hello!\n");
+    }, 5);
 
     return true;
 }
@@ -70,8 +75,8 @@ void render(BelaContext *context, void *userData) {
   for (unsigned int n = 0; n < context->audioFrames; n++) {
     float input = analogRead(context, 0, 1);
     float transform = analogRead(context, 0, 2);
-    float freq = cvToFreq(input);
-    gWave.setFrequency(freq);
+    // float freq = cvToFreq(input);
+    // gWave.setFrequency(freq);
     gWave.setPosition(transform, 0, 1);
 
     float out = gWave.process();

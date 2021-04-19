@@ -6,7 +6,8 @@ struct TimedFunc {
     float ticks;
     float timeStamp;
     std::function<void()> func;
-    bool interval;
+    bool isInterval;
+    bool markDelete;
 };
 
 class Clock {
@@ -26,10 +27,13 @@ public:
         return ticks_ >= seconds * sampleRate_;
     }
 
-    void tickOnInterval(std::function<void()> const& func, float interval);
+    void triggerOnInterval(std::function<void()> const& func, float interval);
+    void triggerOnTimeout(std::function<void()> const& func, float timeout);
 
 
 private:
+    void executeFuncs_();
+    void cleanup_();
     float sampleRate_ = 0.;
     float ticks_ = 0;
     std::vector<TimedFunc> funcs_;
