@@ -10,7 +10,7 @@ void Clock::setup(float sampleRate) {
 }
 
 void Clock::tick() {
-    ticks_++;
+    ticks_= (ticks_ + 1) % UINTMAX_MAX;
     executeFuncs_();
     cleanup_();
 
@@ -18,14 +18,15 @@ void Clock::tick() {
 
 void Clock::executeFuncs_() {
     for (TimedFunc &funcSpec: funcs_) {
-        if (ticks_ - funcSpec.timeStamp >= funcSpec.ticks) {
+        if (funcSpec.ticksToNextCall <= 0) {
             funcSpec.func();
             if (!funcSpec.isInterval) {
                 funcSpec.markDelete = true;
-            } else {
-                funcSpec.timeStamp = ticks_;
             }
+
+            funcSpec.ticksToNextCall = funcSpec.tickDelta;
         }
+        funcSpec.ticksToNextCall--;
     }
 }
 
@@ -36,23 +37,18 @@ void Clock::cleanup_() {
     funcs_.erase(pend, funcs_.end());
 }
 
-float Clock::timeInTicks(float seconds) {
-    return sampleRate_ * seconds;
-}
-
-
 float Clock::getTime() {
     if (ticks_ == 0) {
         return 0;
     }
-    return sampleRate_ / ticks_;
+    return (float) ticks_ / (float) sampleRate_;
 }
 
 
 void Clock::triggerOnInterval(std::function<void()> const &func, float interval) {
     TimedFunc timedFunc{
             timeInTicks(interval),
-            getTicks(),
+            timeInTicks(interval),
             func,
             true,
             false
@@ -63,7 +59,7 @@ void Clock::triggerOnInterval(std::function<void()> const &func, float interval)
 void Clock::triggerOnTimeout(const std::function<void()> &func, float timeout) {
     TimedFunc timedFunc{
             timeInTicks(timeout),
-            getTicks(),
+            timeInTicks(timeout),
             func,
             false,
             false,

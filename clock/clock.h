@@ -3,8 +3,8 @@
 #include <vector>
 
 struct TimedFunc {
-    float ticks;
-    float timeStamp;
+    float ticksToNextCall;
+    float tickDelta;
     std::function<void()> func;
     bool isInterval;
     bool markDelete;
@@ -19,12 +19,11 @@ public:
     float getTicks(){
         return ticks_;
     };
-    float timeInTicks(float seconds);
+    float timeInTicks(float seconds){
+        return seconds * sampleRate_;
+    };
     void reset(){
         ticks_ = 0;
-    }
-    bool pastInterval(float seconds){
-        return ticks_ >= seconds * sampleRate_;
     }
 
     void triggerOnInterval(std::function<void()> const& func, float interval);
@@ -35,7 +34,7 @@ private:
     void executeFuncs_();
     void cleanup_();
     float sampleRate_ = 0.;
-    float ticks_ = 0;
+    uint ticks_ = 0;
     std::vector<TimedFunc> funcs_;
 
 
