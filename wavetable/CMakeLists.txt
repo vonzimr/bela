@@ -3,10 +3,10 @@ add_executable(wavetable
     render.cpp
     wavetable.cpp
     wavetablegroup.cpp
-    interpolation.cpp
-    functiongenerators.cpp
+        functiongenerators.cpp
 )
 
-target_link_libraries (wavetable LINK_PUBLIC clock)
+target_link_libraries (wavetable LINK_PUBLIC clock slew interpolation)
+
 
 install(TARGETS wavetable DESTINATION)

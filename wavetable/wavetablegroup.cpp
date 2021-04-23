@@ -1,12 +1,7 @@
 #include "wavetablegroup.h"
 #include "wavetable.h"
-#include <math.h>
-#include <assert.h>
 #include "interpolation.h"
 #include "Utilities.h"
-
-
-typedef std::vector<std::vector<float>> TableData;
 
 
 void WaveTableGroup::setPosition(float position, float minPosition, float maxPosition){
